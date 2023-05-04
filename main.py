@@ -24,6 +24,7 @@ def handle_update(update):
     # Do something with the message text, such as controlling the ESP32
     if message_text == '/on':
         write_message(Ignatius_ID, '/on received')
+        one_colour(warmwhite)
        
     elif message_text == '/off':
         write_message(Ignatius_ID, '/off received')
@@ -31,7 +32,7 @@ def handle_update(update):
 
         
 
-    elif message_text == 'red' or message_text == 'green' or message_text == 'blue':
+    elif message_text == 'red' or message_text == 'green' or message_text == 'blue' or message_text == 'warmwhite' or message_text == 'coldwhite' or message_text == 'purple':
         write_message(Ignatius_ID, f'{message_text} received')
         one_colour(str(message_text))
 
@@ -42,14 +43,7 @@ def handle_update(update):
 
 def add_colour(colour):
     global active_fill
-    '''
-    pin = 0
-
-    match colour:
-        case 'green':
-            pin = 1
-    '''
-
+  
     if colour == 'red':
         if active_fill[0] < max_brightness-add_scale:
             active_fill[0] += add_scale
