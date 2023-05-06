@@ -1,19 +1,22 @@
+
+# Imports
 import requests
 import neopixel
 import board
 import time
 
-# Replace <BOT_TOKEN> with your bot's token
+# Bot Setup
 bot_token = '6090202726:AAGSnk8RW3HuZCSTSZITHWyY_swzaBFbyFM'
 Ignatius_ID = '1683149821'
 
 
+# Function, that reacts to incoming messages
 def handle_update(update):
-    # Extract the chat ID and message text from the update
+    # Extract information on the new message
     chat_id = update['message']['chat']['id']
     message_text = update['message']['text']
 
-    
+    # If it's two words...
     text_list = message_text.split()
     if len(text_list) > 1:
         if text_list[0] == '+':
@@ -21,16 +24,14 @@ def handle_update(update):
             add_colour(colour)
             write_message(Ignatius_ID, 'adding colour')
 
-    # Do something with the message text, such as controlling the ESP32
+    # If it's one word...
     if message_text == '/on':
         write_message(Ignatius_ID, '/on received')
-        one_colour(warmwhite)
+        one_colour('warmwhite')
        
     elif message_text == '/off':
         write_message(Ignatius_ID, '/off received')
         turn_off()
-
-        
 
     elif message_text == 'red' or message_text == 'green' or message_text == 'blue' or message_text == 'warmwhite' or message_text == 'coldwhite' or message_text == 'purple':
         write_message(Ignatius_ID, f'{message_text} received')
@@ -40,7 +41,7 @@ def handle_update(update):
         write_message(Ignatius_ID, f'{message_text} received')
         
 
-
+# To add a preset amount of a specific colour component to the active configurations (on all pixels)
 def add_colour(colour):
     global active_fill
   
@@ -59,30 +60,32 @@ def add_colour(colour):
             active_fill[2] += add_scale
             update_all()
 
+# Load the active_fill list onto the strip after editing it
 def update_all():
     global active_fill
     print('updated')
     strip.fill((active_fill[0], active_fill[1], active_fill[2]))
 
+# replace the active_fill list with an empty list to start clean for colour presets
 def reset_fill():
     global active_fill
     print('reset')
 
     active_fill = [0,0,0]
 
-
+# simple function for shutdown
 def turn_off():
     reset_fill()
     update_all()
 
-
+# To handle sending a text through the 'requests' library
 def write_message(id, text):
     
     url = f'https://api.telegram.org/bot{bot_token}/sendMessage'
     data = {'chat_id': id, 'text': text}
     response = requests.post(url, data=data)
     
-
+# Initial test from the official adafruit webpage for testing the light strip
 def neopixel_test():
 
     # Set the color of the first LED to red
@@ -97,7 +100,7 @@ def neopixel_test():
     # Update the LED strip
     strip.show()
 
-
+# Setting a single colour for all pixels on the strip
 def one_colour(col):
     global active_fill
     reset_fill()
@@ -139,22 +142,22 @@ led_pin = board.D18
 strip = neopixel.NeoPixel(led_pin, num_leds, bpp=3)
 max_brightness = int(255 * 0.66)
 
-
+# Configure variables for colour addition and fill function
 active_fill = []
 add_scale = 20
 decr_scale = add_scale/2
 
 
-#################
+################# 
 
+# Start-Up procedure
 reset_fill()
 update_all()
-
-# Start a loop to check for updates from the Telegram Bot API
 last_update_id = 0
-
 write_message(Ignatius_ID, 'Power on')
 
+
+# Infinite loop as a message handler for checking updates fromt he API and forwarding them to the handle_message() function 
 while True:
     try:
         url = f'https://api.telegram.org/bot{bot_token}/getUpdates'
